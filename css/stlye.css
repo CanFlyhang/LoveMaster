@@ -1,0 +1,9 @@
+/* Custom styles not covered by Tailwind */
+body {
+    -webkit-tap-highlight-color: transparent;
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+}
