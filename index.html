@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>高情商挑战</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .card-shadow { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); }
+        .modal-enter { transform: translateY(100%); opacity: 0; }
+        .modal-enter-active { transform: translateY(0); opacity: 1; transition: all 0.3s ease-out; }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex flex-col font-sans">
+
+    <!-- Header -->
+    <header class="bg-white px-4 py-3 flex items-center justify-between shrink-0 sticky top-0 z-10 shadow-sm">
+        <div class="flex items-center space-x-2">
+            <!-- 固定标题 -->
+            <div class="font-bold text-lg text-gray-800">恋爱挑战</div>
+        </div>
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center text-red-500 font-bold bg-red-50 px-2 py-1 rounded-lg">
+                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                <span id="creditCount">--</span>
+            </div>
+            <!-- 用户中心入口 -->
+            <button class="cursor-pointer" onclick="openUserCenter()" aria-label="用户中心">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A4 4 0 018 16h8a4 4 0 012.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </button>
+             <div class="cursor-pointer" onclick="window.location.href='rank.html'">
+                <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-4 space-y-4 pb-24">
+        
+        <!-- 身份卡片 -->
+        <div class="bg-white rounded-2xl p-4 card-shadow">
+            <div class="flex items-center space-x-3">
+                <div class="w-1 h-6 bg-gray-300 rounded-full"></div>
+                <div class="text-gray-500 font-medium text-lg" id="roleTitle">加载中...</div>
+            </div>
+        </div>
+
+        <!-- 题目卡片 -->
+        <div class="bg-white rounded-2xl p-5 card-shadow relative">
+            <div class="flex justify-between items-center mb-3">
+                <div class="font-bold text-gray-800 text-lg flex items-center">
+                    <span id="npcName">NPC</span> 说：
+                </div>
+                <button onclick="refreshTopic()" class="text-blue-500 text-sm flex items-center font-medium active:opacity-60">
+                    换一换 
+                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                </button>
+            </div>
+            
+            <div class="bg-gray-100 rounded-xl p-4 text-gray-700 leading-relaxed text-base min-h-[80px]" id="topicContent">
+                <span class="animate-pulse">正在准备考题...</span>
+            </div>
+        </div>
+
+        <!-- 回答输入区 -->
+        <div class="bg-white rounded-2xl p-4 card-shadow">
+            <textarea id="messageInput" rows="5" class="w-full bg-transparent outline-none resize-none text-base placeholder-gray-400" placeholder="请输入你的高情商回复..."></textarea>
+        </div>
+
+    </main>
+
+    <!-- 底部提交栏 -->
+    <div class="fixed bottom-0 left-0 w-full bg-white border-t p-4 z-20 pb-safe">
+        <button onclick="submitReply()" id="submitBtn" class="w-full bg-[#07C160] text-white font-bold py-3.5 rounded-full text-lg shadow-lg active:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+            提交回复
+        </button>
+    </div>
+
+    <!-- 评分结果模态框 -->
+    <div id="resultModal" class="fixed inset-0 z-40 hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        <div class="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl h-[90vh] flex flex-col transform transition-transform duration-300 translate-y-full" id="modalContent">
+            <!-- Handle bar -->
+            <div class="w-full flex justify-center pt-3 pb-1" onclick="closeModal()">
+                <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+            </div>
+            <!-- Header -->
+            <div class="text-center py-2 border-b border-gray-100 shrink-0 relative">
+                <span class="text-gray-500 text-sm">本次得分</span>
+                <div class="text-6xl font-bold text-[#D9534F] mt-1" id="scoreValue">0</div>
+                <button onclick="closeModal()" class="absolute right-4 top-4 text-gray-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-6 bg-gray-50">
+                <div class="bg-white rounded-2xl p-5 shadow-sm">
+                    <div class="flex items-center mb-3 text-yellow-600 font-bold">深度解析</div>
+                    <div class="text-gray-600 text-sm leading-relaxed text-justify" id="analysisContent">...</div>
+                </div>
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-blue-50">
+                    <div class="flex items-center mb-3 text-blue-600 font-bold">满分示范</div>
+                    <div class="text-gray-600 text-sm leading-relaxed text-justify bg-blue-50 p-3 rounded-lg" id="bestReplyContent">...</div>
+                </div>
+                <div class="h-20"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 体力不足模态框 -->
+    <div id="noCreditModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-6">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div class="bg-white rounded-2xl p-6 w-full max-w-sm relative z-10 text-center shadow-2xl">
+            <div class="text-4xl mb-4">⚡</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-2">体力耗尽啦！</h3>
+            <p class="text-gray-500 mb-6 text-sm">您的10次免费机会已用完。分享给好友即可立即获得复活机会！</p>
+            <button onclick="shareToRevive()" id="shareBtn" class="w-full bg-gradient-to-r from-pink-500 to-orange-500 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-transform flex items-center justify-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                分享给好友 (+1次)
+            </button>
+        </div>
+    </div>
+
+    <!-- 用户中心模态框 -->
+    <div id="userCenterModal" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeUserCenter()"></div>
+        <div class="absolute bottom-0 left-0 w-full bg-white rounded-t-3xl h-[85vh] flex flex-col transform transition-transform duration-300 translate-y-full" id="ucPanel">
+            <!-- 顶部拖拽条 -->
+            <div class="w-full flex justify-center pt-3 pb-1">
+                <div class="w-12 h-1.5 bg-gray-300 rounded-full"></div>
+            </div>
+            <!-- 头部 -->
+            <div class="px-5 pb-3 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                    <div class="text-xs text-gray-400">游客ID</div>
+                    <div class="font-bold text-gray-800" id="ucOpenId">加载中...</div>
+                </div>
+                <button onclick="closeUserCenter()" class="text-gray-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <!-- 内容 -->
+            <div class="flex-1 overflow-y-auto p-5 space-y-5 bg-gray-50">
+                <!-- 生命值卡片 -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-gray-400">剩余生命值</div>
+                        <div class="text-2xl font-bold text-red-500" id="ucCredits">--</div>
+                    </div>
+                    <button id="ucRechargeBtn" onclick="rechargeByShare()" class="bg-[#07C160] text-white font-bold px-4 py-2 rounded-full shadow active:scale-95 transition-transform">
+                        生命值充值
+                    </button>
+                </div>
+                <!-- 历史记录列表 -->
+                <div class="bg-white rounded-2xl p-4 shadow-sm">
+                    <div class="font-bold text-gray-800 mb-3">历史答题记录</div>
+                    <div id="ucHistoryList" class="space-y-3">
+                        <div class="text-center text-gray-400 py-6">加载中...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/spa.js"></script>
+</body>
+</html>
